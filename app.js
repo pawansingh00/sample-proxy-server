@@ -4,18 +4,26 @@ let proxy = new httpProxy.createProxyServer({ proxyTimeout: 180000 });
 
 var proxyServer = http.createServer(async function (req, res) {
 	try {
+
+        if (req.url === '/favicon.ico') {
+			res.writeHead(204);
+			res.end();
+			return;
+		}
+        
 		console.log("req.url : ", req.url);
         
         // NOTE: this logic of getting port I have simplified for DEMO purpose, in actual URL won't be having port number etc.
-        let uiPort = req.url.split("_")[1]; // gets cotainer name from the URL
+        let uiPort = req.url.split("/")[1].split("_")[1]; // gets cotainer name from the URL
 		
-        if (req.url.split("/").length == 1) {
-			req.url = "/";
-		} else if (req.url.split("/").length > 1) {
-			req.url = req.url.split("/").slice(2).join("/");
-		}
+        // if (req.url.split("/").length == 1) {
+		// 	req.url = "/";
+		// } else if (req.url.split("/").length > 1) {
+		// 	req.url = req.url.split("/").slice(2).join("/");
+		// }
 
-		let targetUrl = "http://localhost" + ":" + uiPort;
+        // "/containerId_3001/@vite/client".split("/")[1].split("_")[1]
+		let targetUrl = "http://localhost" + ":" + uiPort + req.url.split("/").join("/");
         console.log("targetUrl : ", targetUrl);
 		proxy.web(req, res, {
 			target: targetUrl,
